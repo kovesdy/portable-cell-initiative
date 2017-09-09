@@ -10,7 +10,7 @@ echo "PCI Start Script Starting"
 DIRECTORY=openbts
 cd /home/$DIRECTORY
 
-cd smqueue/smqueue/; sudo ./smqueue
-cd subscriberRegistry/apps/; sudo ./sipauthserve
-cd openbts/apps; sudo ./OpenBTS
-cd openbts/apps; sudo ./OpenBTSCLI
+cd smqueue/smqueue/; ./smqueue
+cd subscriberRegistry/apps/; ./sipauthserve
+cd openbts/apps; ./OpenBTS
+cd openbts/apps; ./OpenBTSCLI

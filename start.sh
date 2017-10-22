@@ -8,9 +8,9 @@
 clear
 echo "PCI Start Script Starting"
 DIRECTORY=openbts
-cd /home/$DIRECTORY
 
-cd smqueue/smqueue/; ./smqueue
-cd subscriberRegistry/apps/; ./sipauthserve
-cd openbts/apps; ./OpenBTS
-cd openbts/apps; ./OpenBTSCLI
+cd /home/$DIRECTORY/smqueue/smqueue/; ./smqueue &
+cd /home/$DIRECTORY/subscriberRegistry/apps/; ./sipauthserve &
+cd /home/$DIRECTORY/openbts/apps
+screen -S openbtsCLI ./OpenBTS
+#cd /home/$DIRECTORY/openbts/apps; ./OpenBTSCLI &

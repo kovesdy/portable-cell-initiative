@@ -10,6 +10,10 @@
 #If the script is not in the PATH, run it with sudo ./setup.sh
 #WARNING: must be run with sudo
 
+#Set the current user (so the correct directory to NodeManager may be established)
+#TO-DO: Update this so it is automatically detected upon completely of the main setup script, or have it typed in manually by the user
+USER=akovesdy
+
 clear
 echo "PCI Setup Script Starting"
 
@@ -51,7 +55,7 @@ apt-get install -y autoconf automake libtool debhelper sqlite3 libsqlite3-dev li
     libsqliteodbc python-zmq dpkg-dev
 add-apt-repository -y ppa:chris-lea/zeromq
 apt-get update
-apt-get install -y libzmq3-dbg libzmq3-dev libzmq3
+apt-get install -y libzmq3-dbg libzmq3-dev libzmq3 python-zmq
 #Libort8 installation requires reference to Ubuntu 12:
 sed -i "$ a deb http://us.archive.ubuntu.com/ubuntu precise main universe" /etc/apt/sources.list
 apt-get update;
@@ -127,11 +131,51 @@ cd /home/$DIRECTORY/openbts
 #Potential error occured here
 make
 
-#Configure certain variables for bladeRF operation
+#Configure certain variables for bladeRF operation:
+GSMBand=900
+RadioC0=51
+ARFCNs=1
+MCC=001
+MNC=01
+ShortName=Disaster Relief Cellular
+RegistrationNumber=101
+IMSIAllowed=^001
+
 cd apps
 sed -i "s/GSM.Radio.RxGain','47'/GSM.Radio.RxGain','5'/g" OpenBTS.example.sql
 sed -i "s/GSM.Radio.PowerManager.MaxAttenDB','10'/GSM.Radio.PowerManager.MaxAttenDB','35'/g" OpenBTS.example.sql
 sed -i "s/GSM.Radio.PowerManager.MinAttenDB','0'/GSM.Radio.PowerManager.MinAttenDB','35'/g" OpenBTS.example.sql
+
+#Configure band and network
+sed -i "s/GSM.Radio.Band','900'/GSM.Radio.Band','$GSMBAND'/g" OpenBTS.example.sql
+sed -i "s/GSM.Radio.C0','51'/GSM.Radio.Band','$RadioC0'/g" OpenBTS.example.sql
+sed -i "s/GSM.Radio.ARFCNs','1'/GSM.Radio.Band','$ARFCNs'/g" OpenBTS.example.sql
+#MCC and MNC
+sed -i "s/GSM.Identity.MCC','001'/GSM.Identity.MCC','$MCC'/g" OpenBTS.example.sql
+sed -i "s/GSM.Identity.MNC','01'/GSM.Identity.MNC','$MNC'/g" OpenBTS.example.sql
+sed -i "s/GSM.Identity.ShortName','Range'/GSM.Identity.ShortName','$ShortName'/g" OpenBTS.example.sql
+
+#Instruct nonsubscriber phones to not pester the network constantly with reconnections
+sed -i "s/Control.LUR.404RejectCause','0x04'/Control.LUR.404RejectCause','0x0C'/g" OpenBTS.example.sql
+sed -i "s/Control.LUR.UnprovisionedRejectCause','0x0C'/Control.LUR.UnprovisionedRejectCause','0x0C'/g" OpenBTS.example.sql
+
+#GPRS control
+sed -i "s/GPRS.Enable','0'/GPRS.Enable','1'/g" OpenBTS.example.sql
+
+#OpenRegistration configuration
+#Regex expression for controlling who gets to open register (.* matches all IMSIs)
+sed -i "s/Control.LUR.OpenRegistration',''/Control.LUR.OpenRegistration','$IMSIAllowed'/g" OpenBTS.example.sql
+sed -i "s/Control.LUR.OpenRegistration.Message','Welcome to the test network. Your IMSI is '/Control.LUR.OpenRegistration','Connected to Disaster Relief Cellular. Your IMSI is '/g" OpenBTS.example.sql
+sed -i "s/Control.LUR.OpenRegistration.Reject',''/Control.LUR.OpenRegistration.Reject',''/g" OpenBTS.example.sql
+sed -i "s/Control.LUR.OpenRegistration.ShortCode','101'/Control.LUR.OpenRegistration.ShortCode','$RegistrationNumber'/g" OpenBTS.example.sql
+
+#Turn on "Emergency Calls not supported beacon" for testing purposes
+sed -i "s/GSM.RACH.AC','0x0400'/GSM.RACH.AC','0x0400'/g" OpenBTS.example.sql
+#Uncomment following line for full access with no restrictions (DANGER)
+#sed -i "s/GSM.RACH.AC','0x0400'/GSM.RACH.AC','0'/g" OpenBTS.example.sql
+
+#Enable PhysicalStatus API
+sed -i "s/NodeManager.API.PhysicalStatus','disabled'/NodeManager.API.PhysicalStatus','0.1'/g" OpenBTS.example.sql
 
 #Configure OpenBTS and upload database
 mkdir /etc/OpenBTS
@@ -164,7 +208,31 @@ sqlite3 -init smqueue/smqueue.example.sql /etc/OpenBTS/smqueue.db ".quit"
 mkdir -p /var/lib/OpenBTS;
 touch /var/lib/OpenBTS/smq.cdr
 
-echo "Configuration complete"
+#Make sure screen is installed (should be by default)
+apt-get install -y screen
+
+#Configure firewall (for allowing GPRS connections)
+#Substitute custom set of rules here if you want
+IPRulesLocation=/home/$DIRECTORY/openbts/apps/iptables.rules
+iptables-restore < $IPRulesLocation
+#Permamently change the etc/network/interfaces file to apply changes whenever the eth0 interface is opened
+sed -i "$ a \\\tpre-up iptables-restore < $IPRulesLocation" /etc/network/interfaces
+
+echo "Primary Configuration complete"
+echo "Starting Secondary configuration on OpenBTS, SMQueue, and other services"
+
+#Start all services
+cd /home/$DIRECTORY/smqueue/smqueue/; ./smqueue &
+cd /home/$DIRECTORY/subscriberRegistry/apps/; ./sipauthserve &
+cd /home/$DIRECTORY/openbts/apps
+screen -S openbtsCLI ./OpenBTS
+
+#Set variables through nmcli.py
+cd /home/$USER/NodeManager/
+#Changes the code for SMqueue to accept OpenRegistration applications through the number #101
+./nmcli.py smqueue config update SC.Register.Code $RegistrationNumber
+
+echo "Secondary Configuration complete"
 echo "Execute start.sh to startup OpenBTS"
 
 #Optional

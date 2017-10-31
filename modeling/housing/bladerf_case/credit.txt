@@ -1,0 +1,4 @@
+Source: https://www.thingiverse.com/thing:428932/#files
+Author: Shockwave
+NOTE: This case is for the HF daughterboard with the BladeRF x40, not the required one for the amplifier
+They are, however, very similar in size and the ports required.

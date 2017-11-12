@@ -18,12 +18,13 @@ The “Portable Cell Initiative”, tackles the challenge by developing a small,
 * Flexible design
 * Cheap and based on open-sourced hardware and software
 
-<p align="center"><img src="modeling/img/array_3d-1.jpg" alt="Antenna Array example" width="400"></p>
+<p align="center"><img src="structural_CAD/img/array_3d-1.jpg" alt="Antenna Array example" width="400"></p>
 
 ## More information
 
 ### Additional Documents
-* Complete Project Proposal
+* [Introductory Powerpoint](https://drive.google.com/open?id=1aGqGCh3v1vU4eB8DhiBI95E3DqyPoUFu)
+* [Complete Project Proposal](https://drive.google.com/open?id=1P7SBx1yV2n8gCgzejELNr3f8qNV_H3i-8C9I9dhl-e8)
 * [CAD Drawings](https://github.com/Ironarcher/portable-cell-initiative/tree/master/modeling)
 * [Networking Diagram](https://github.com/Ironarcher/portable-cell-initiative/blob/master/Portable%20Cell%20Initiative%20Network%20Diagram.png)
 * [Safety Recommendations](https://github.com/Ironarcher/portable-cell-initiative/blob/master/Safety%20Recommendations.docx?raw=true)

@@ -1,4 +1,4 @@
-<p align="center"><img src="/pci.png" alt="PCI Logo" width="100" align="center"></p>
+<p align="center"><img src="/logo.png" alt="PCI Logo" width="100" align="center"></p>
 
 # Portable Cell Initiative
 An open-source software and hardware project to build portable micro-cells for deployment in disaster areas where power, internet, and infrastructure is destroyed.
@@ -22,9 +22,9 @@ The “Portable Cell Initiative”, tackles the challenge by developing a small,
 
 ## More information
 
-### Additional Documents
-* [Introductory Powerpoint](https://drive.google.com/open?id=1aGqGCh3v1vU4eB8DhiBI95E3DqyPoUFu)
-* [Complete Project Proposal](https://drive.google.com/open?id=1P7SBx1yV2n8gCgzejELNr3f8qNV_H3i-8C9I9dhl-e8)
+#### * [Complete Project Proposal](https://drive.google.com/open?id=1P7SBx1yV2n8gCgzejELNr3f8qNV_H3i-8C9I9dhl-e8)
+
+### Design and Technical Documents and Schematics
 * [CAD Drawings](https://github.com/Ironarcher/portable-cell-initiative/tree/master/modeling)
 * [Networking Diagram](https://github.com/Ironarcher/portable-cell-initiative/blob/master/Portable%20Cell%20Initiative%20Network%20Diagram.png)
 * [Safety Recommendations](https://github.com/Ironarcher/portable-cell-initiative/blob/master/Safety%20Recommendations.docx?raw=true)

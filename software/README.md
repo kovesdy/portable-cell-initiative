@@ -3,8 +3,11 @@ Folder for the development of software that runs on the Linux Server (either the
 The configuration scripts are for Ubuntu 14.04 Server edition.
 
 `getting_started.sh` describes how to access the Git repository and initialize the enviornment
+
 `setup.sh` may then be run to automatically download, configure, and build the packages used for OpenBTS and GSM communciations
+
 Edit the different variables for SDR operation, such as the band used, MCC, MNC, ARFCN, and network ShortName to customize the network and avoid interference
+
 `start.sh` will start the OpenBTS environment and begin the system
 
 ### Features in Progress

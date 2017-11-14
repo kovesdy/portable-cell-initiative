@@ -22,7 +22,7 @@ The “Portable Cell Initiative”, tackles the challenge by developing a small,
 
 ## More information
 
-#### * [Complete Project Proposal](https://drive.google.com/open?id=1P7SBx1yV2n8gCgzejELNr3f8qNV_H3i-8C9I9dhl-e8)
+#### [Complete Project Proposal](https://drive.google.com/open?id=1P7SBx1yV2n8gCgzejELNr3f8qNV_H3i-8C9I9dhl-e8)
 
 ### Design and Technical Documents and Schematics
 * [CAD Drawings](https://github.com/Ironarcher/portable-cell-initiative/tree/master/modeling)

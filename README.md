@@ -27,10 +27,10 @@ The “Portable Cell Initiative”, tackles the challenge by developing a small,
 ### Design and Technical Documents and Schematics
 * [CAD Drawings](https://github.com/Ironarcher/portable-cell-initiative/tree/master/structural_CAD)
 * [Networking Diagram](https://drive.google.com/file/d/1F7UjbKQFGlt_Ugc90fcQds3FkP_MWMTc/view?usp=sharing)
-* [Safety Recommendations](https://github.com/Ironarcher/portable-cell-initiative/blob/master/Safety%20Recommendations.docx?raw=true)
-* [Properties of the Recommended Antenna](https://github.com/Ironarcher/portable-cell-initiative/blob/master/Antenna%20Analysis.docx)
+* [Safety Recommendations](https://github.com/Ironarcher/portable-cell-initiative/raw/master/documentation/Safety%20Recommendations.docx)
+* [Properties of the Recommended Antenna](https://github.com/Ironarcher/portable-cell-initiative/raw/master/documentation/Antenna%20Analysis.docx)
 * [Circuit Diagram](https://drive.google.com/file/d/19UB1lHhNbGaFvCO_THeIRcXM_tuGDZBh/view?usp=sharing)
-* [Antenna Range and Estimation of user capacity](https://github.com/Ironarcher/portable-cell-initiative/blob/master/Range%20and%20Subscriber%20Analysis.docx)
+* [Antenna Range and Estimation of user capacity](https://github.com/Ironarcher/portable-cell-initiative/raw/master/documentation/Range%20and%20Subscriber%20Analysis.docx)
 
 ### Software Development
 The Software-defined Radio utilizes OpenBTS to process GSM signals.

@@ -25,12 +25,12 @@ The “Portable Cell Initiative”, tackles the challenge by developing a small,
 #### [Complete Project Proposal](https://drive.google.com/open?id=1P7SBx1yV2n8gCgzejELNr3f8qNV_H3i-8C9I9dhl-e8)
 
 ### Design and Technical Documents and Schematics
-* [CAD Drawings](https://github.com/Ironarcher/portable-cell-initiative/tree/master/modeling)
-* [Networking Diagram](https://github.com/Ironarcher/portable-cell-initiative/blob/master/Portable%20Cell%20Initiative%20Network%20Diagram.png)
-* [Safety Recommendations](https://github.com/Ironarcher/portable-cell-initiative/blob/master/Safety%20Recommendations.docx?raw=true)
-* [Properties of the Recommended Antenna](https://github.com/Ironarcher/portable-cell-initiative/blob/master/Antenna%20Analysis.docx)
-* [Circuit Diagram](https://github.com/Ironarcher/portable-cell-initiative/blob/master/PCI%20Circuit%20Diagram%20-%20Page%201.png)
-* [Antenna Range and Estimation of user capacity](https://github.com/Ironarcher/portable-cell-initiative/blob/master/Range%20and%20Subscriber%20Analysis.docx)
+* [CAD Drawings](https://github.com/Ironarcher/portable-cell-initiative/tree/master/structural_CAD)
+* [Networking Diagram](https://drive.google.com/file/d/1F7UjbKQFGlt_Ugc90fcQds3FkP_MWMTc/view?usp=sharing)
+* [Safety Recommendations](https://github.com/Ironarcher/portable-cell-initiative/raw/master/documentation/Safety%20Recommendations.docx)
+* [Properties of the Recommended Antenna](https://github.com/Ironarcher/portable-cell-initiative/raw/master/documentation/Antenna%20Analysis.docx)
+* [Circuit Diagram](https://drive.google.com/file/d/19UB1lHhNbGaFvCO_THeIRcXM_tuGDZBh/view?usp=sharing)
+* [Antenna Range and Estimation of user capacity](https://github.com/Ironarcher/portable-cell-initiative/raw/master/documentation/Range%20and%20Subscriber%20Analysis.docx)
 
 ### Software Development
 The Software-defined Radio utilizes OpenBTS to process GSM signals.

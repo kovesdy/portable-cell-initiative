@@ -96,4 +96,10 @@ apt-get -y install wondershaper
 apt-get -y install python
 apt-get -y install python-pip
 
-
+#Enable monitoring via screen by moving python file
+cp pci_serial.py /bin
+crontab -l > mycron
+echo "@reboot python /bin/pci_serial.py &"
+echo "@reboot yate -s -d"
+crontab -e mycron
+rm mycron

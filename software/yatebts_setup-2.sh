@@ -1,3 +1,4 @@
+#!/bin/bash
 #Important: requires sudo permissions
 #Install necessary packages for bladerf operation
 add-apt-repository ppa:bladerf/bladerf
@@ -27,7 +28,7 @@ apt-get install -y subversion build-essential automake autoconf libusb-1.0-0-dev
 
 #Create custom user group to manage everything
 addgroup yate
-usermod -a -G yate ubuntu #CHANGE ubuntu to the user currently doing everything
+usermod -a -G yate odroid #CHANGE ubuntu to the user currently doing everything
 
 #Fetch Yate and Yate-BTS
 mkdir ~/software
@@ -37,6 +38,9 @@ cd null
 #Only checkout specific versions of yate and yatebts
 svn checkout -r6315 http://yate.null.ro/svn/yate/trunk yate
 svn checkout -r660 http://voip.null.ro/svn/yatebts/trunk yatebts
+#Allow ownership for all users
+chown -R odroid yatebts
+chown -R odroid yate
 
 #Building and installing yate/yatebts
 cd ~/software/null/yate
@@ -61,28 +65,34 @@ chown root:yate /usr/local/etc/yate/*.conf
 chmod g+w /usr/local/etc/yate/*.conf
 
 #Copy configuration files and modified scripts
+cd ~/code/portable-cell-initiative/software/customYBTS
 rm -rf /usr/local/etc/yate/*
-cp customYBTS/config/*  /usr/local/etc/yate
+cp -a config/*  /usr/local/etc/yate
 rm -rf /usr/local/share/yate/scripts/*
-cp customYBTS/config/* /usr/local/share/yate/scripts
+cp -a scripts/* /usr/local/share/yate/scripts
 
 #Firewall configuration for GPRS
 iptables -A POSTROUTING -t nat -s 192.168.99.0/24 ! -d 192.168.99.0/24 -j MASQUERADE
 
 #To save iptables
-sudo apt-get install iptables-persistent
+apt-get install -y iptables-persistent
 iptables-save > /etc/iptables/rules.v4
 iptables-save > /etc/iptables/rules.v6
 
+#Enable IP Forwarding
+echo 1 > /proc/sys/net/ipv4/ip_forward
+sed -i "s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g" /etc/sysctl.conf
+
 #Apache, PHP, webgui installation and configuration
-sudo apt-get install apache2 -y
-sudo apt-get install php libapache2-mod-php php-mcrypt php-mysql
-sudo ufw allow in "Apache Full" #Configure the apache server
+apt-get install apache2 -y
+apt-get install -y php libapache2-mod-php php-mysql
+ufw enable
+ufw allow in "Apache Full" #Configure the apache server
 
 cd /var/www/html
 ln -s /usr/local/share/yate/nipc_web nipc #Copy over webGUI file to apache
-sudo chmod -R a+rw /usr/local/etc/yate/ #Give the user permission to write to the configuration files
-sudo systemctl restart apache2 #Start or restart the apache server
+chmod -R a+rw /usr/local/etc/yate/ #Give the user permission to write to the configuration files
+systemctl restart apache2 #Start or restart the apache server
 #verify that the server is listening on port 80 in ports.conf
 
 #To find public IP address
@@ -97,9 +107,10 @@ apt-get -y install python
 apt-get -y install python-pip
 
 #Enable monitoring via screen by moving python file
+cd ~/code/portable-cell-initiative/software
 cp pci_serial.py /bin
-crontab -l > mycron
-echo "@reboot python /bin/pci_serial.py &"
-echo "@reboot yate -s -d"
-crontab -e mycron
-rm mycron
+(sudo crontab -l; echo "@reboot python /bin/pci_serial.py &") | sudo crontab -
+(sudo crontab -l; echo "@reboot yate -s -d") | sudo crontab -
+
+#Reboot to update firmware on bladeRF and start yate
+reboot

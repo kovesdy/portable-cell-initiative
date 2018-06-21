@@ -36,7 +36,7 @@ def setSplashScreen(line1, line2):
 	sendCommand(command) #Sets the splash screen
 
 def getTelnetResponse(command):
-	#Reload yatebts to save the changes
+	#Get the response data from a telnet command
 	host = "localhost"
 	port = 5038
 	try:

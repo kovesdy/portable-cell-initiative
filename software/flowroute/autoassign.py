@@ -2,11 +2,11 @@
 #Assign a number that each phone can use dynamically, based on what is listed in nipc list registered
 import os
 import sys
-import time
+from time import sleep
 import telnetlib
 from flowroutenumbersandmessaging.flowroutenumbersandmessaging_client import FlowroutenumbersandmessagingClient as flclient
 
-routefilepath = "regexroute.txt" #The configuration file for routing (in YateBTS)
+routefilepath = "/usr/local/etc/yate/regexroute.conf" #The configuration file for routing (in YateBTS)
 localdb = "numbers.txt" #Data file that must be located at the same directory as the python files
 sleepTime = 10
 
@@ -32,43 +32,44 @@ def init_client():
 	except Exception, e:
 		print e.message
 
-def reloadConfig():
+def reloadConfig(tn):
 	#Reload mbts to save configuration changes
-	host = "localhost"
-	port = 5038
 	try:
-		tn = telnetlib.Telnet(host, port) #Star the telnet connection
-		tn.write("mbts reload\r") #Etner command to reload yatebts
-		tn.close() #Close the telnet connection
+		tn.write("nipc reload\r") #Etner command to reload yatebts configuration of subscribers
+		sleep(0.5)
+		tn.read_very_eager()
 	except Exception, e:
 		print e.message
 
-def getRegisteredNums():
-	#Get the response data from a telnet command
-	host = "localhost"
-	port = 5038
+def getRegisteredNums(tn):
 	try:
-		tn = telnetlib.Telnet(host, port) #Star the telnet connection
-		tn.write("nipc list registered\n") #Etner command to reload yatebts
-		try:
-			data = tn.read_eager()
+		tn.write("nipc list registered\r")
+		sleep(0.5)
+		data = tn.read_very_eager()
+		data = data.split("\r\n")
+		if data[0].startswith("IMSI"): #Error checking
+			del data[0:2] #Remove the first two indices
+			del data[-1] #Remove the last index
 			#Process data
 			imsilist = []
 			numlist = []
-			if data[0].startswith("IMSI"): #Error checking
-				print data 
-			tn.close()
+			for i in range(0, len(data)):
+				item = data[i]
+				itemSep = item.split('   ') #Seperate items into the two columns printed
+				imsilist.append(itemSep[0])
+				numlist.append(itemSep[1])
 			return (imsilist, numlist)
-		except Exception, e:
-			print(e.message)
-			tn.close()
-			return None
+		else:
+			print("Error when accessing nipc list registered.")
+			return () #Return empty tuple on error
 	except Exception, e:
-		print e.message
+		print(e.message)
 		return None
 
 #Writes the international (SIP) number and the IMSI to regexroute.conf
 def addNumToRegexroute(sipnum, imsi):
+	sipnum = sipnum.replace('\n', '')
+	imsi = imsi.replace('\n', '')
 	with open(routefilepath, "a") as routefile:
 		routefile.write("^%s$=ybts/IMSI%s" % (str(sipnum),str(imsi)) + "\n")
 
@@ -108,6 +109,7 @@ def getDbData():
 			data = numbersfile.readlines()
 			for line in data:
 				if ',' in line: #Verify that each line is valid and contains a comma
+					line = line.replace('\n', '')
 					splitdata = line.split(',')
 					localnumlist.append(splitdata[0])
 					intlnumlist.append(splitdata[1])
@@ -163,15 +165,15 @@ def updateAccountPhoneNumbers():
 		result = numbers_controller.list_account_phone_numbers(None, None, None, max_numbers_request, None) #Asks for the current account phone numbers (limit is 30)
 		available_numbers = [] #Initialize empty list for all phone numbers that we own in the account
 		for i in range(0,len(result['data'])):
-			available_numbers.append(result['data'][i]['id']) #Append to the list the "Id" or the phone number in each entry
+			available_numbers.append(result['data'][i]['id'].encode('utf-8')) #Append to the list the "Id" or the phone number in each entry
 
 		with open(localdb, "r") as numbersfile:
 			data = numbersfile.readlines()
-
 		for line in data: #For each line read in the numbers.txt
 			if ',' in line:
+				line = line.replace('\n', '') #Remove newline characters
 				temp_number = line.split(',')[1] #Get the main number out of this line
-				if temp_number in available_numbers: #If the temporary number already exists in the main available numbers from SIP provider
+				if str(temp_number) in available_numbers: #If the temporary number already exists in the main available numbers from SIP provider
 					available_numbers.remove(temp_number)
 				else:
 					print('Error: Extra number exists that is not being paid for (Critical):' + temp_number)
@@ -189,6 +191,22 @@ def updateAccountPhoneNumbers():
 		print e.message
 
 if __name__ == "__main__":
+	connectionOn = False #boolean of whether the telnet connection can be established
+	telnetHOST = "127.0.0.1"
+	telnetPORT = 5038
+	while not connectionOn:
+		try:
+			tn = telnetlib.Telnet(telnetHOST, telnetPORT) #Start the telnet connection
+			sleep(0.5)
+			tn.read_very_eager() #Clear output from connection
+		except Exception, e:
+			print e.message
+			print("Waiting for yatebts to restart.")
+			sleep(20) #Wait for 20 seconds and try again
+		else:
+			connectionOn = True
+			print("Connection established.")
+
 	updateAccountPhoneNumbers()
 	counter = 0 #How many times the loop has been made
 	while True: #Repeat forever
@@ -196,17 +214,17 @@ if __name__ == "__main__":
 			counter = 0 #Reset the counter
 			updateAccountPhoneNumbers() #Start the update process from flowroute again
 		#Find all local numbers and imsis
-		(imsilist, numlist) = getRegisteredNums
+		(imsilist, numlist) = getRegisteredNums(tn)
 		#Crossreference with numbers (intl.) database
-		(localnums, intlnums) dbData = getDbData()
-		for num_inyate in numlist #For each local phone number pulled from nipc list registered
+		(localnums, intlnums) = getDbData()
+		for num_inyate in numlist: #For each local phone number pulled from nipc list registered
 			if num_inyate in localnums: #If there is a cross-reference match
-				num_inyate.remove(num_inyate) #Remove from both lists
+				numlist.remove(num_inyate) #Remove from both lists
 				localnums.remove(num_inyate)
 
 		#Get available numbers (and cull from numbers.txt list)
 		available_intl = []
-		for i in range(0, len(localnums):
+		for i in range(0, len(localnums)):
 			num_indatabase = localnums[i]
 			if num_indatabase is 'Notassigned':
 				available_intl.append(intlnums[i])
@@ -224,13 +242,19 @@ if __name__ == "__main__":
 
 		#Next, starting with first localnum in nipc list, try to assign each to an intl number both in numbers.txt and in regexroute
 		for num in numlist:
-			if len(available_intl) > 0: #If there are available international numbers
+			if len(available_intl) > 1: #If there are available international numbers
+				currentimsi = imsilist[numlist.index(num)] #Get corresponding imsi for this particular num
+				matchNumToDB(num, available_intl[-1])
+				addNumToRegexroute(available_intl[-1], currentimsi)
+				del available_intl[-1]
+			elif len(available_intl) > 0: #If there is only one international number left
 				currentimsi = imsilist[numlist.index(num)] #Get corresponding imsi for this particular num
 				matchNumToDB(num, available_intl[0])
 				addNumToRegexroute(available_intl[0], currentimsi)
 			else:
 				print('Not enough international numbers')
 				print('TODO: finish method for buying new numbers')
+		reloadConfig(tn) #Reload mbts		
 
 		counter = counter + 1
 		sleep(sleepTime)

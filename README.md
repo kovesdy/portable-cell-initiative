@@ -53,6 +53,8 @@ The Linux server uses a custom configuration of Ubuntu 14 (Odroid XU4 compatible
 
 [Find the code and contribute](https://github.com/Ironarcher/beamlink_captiveportal)
 
+<p align="center"><img src="/captiveportal.png" alt="Captive Portal example image" width="400" align="center"></p>
+
 #### In Progress:
 - VPN Setup guide between master server and cellular base stations
 - Integration with Flowroute SMS API for international texting
